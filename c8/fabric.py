@@ -510,6 +510,31 @@ class Fabric(APIWrapper):
 
         return self._execute(request, response_handler)
 
+    def add_datacenters(self, name,dc_list):
+        data = {}
+        dcl = ''
+        if dc_list:
+            # Process dclist param (type list) to build up comma-separated string of DCs
+            for dc in dc_list:
+                if len(dcl) > 0:
+                    dcl += ','
+                dcl += dc
+
+        data['dcList'] = dcl
+
+        request = Request(
+            method='post',
+            endpoint='/database/{}/datacenter'.format(name),
+            data=data
+        )
+
+        def response_handler(resp):
+            if not resp.is_success:
+                raise FabricDcAddError(resp, request)
+            return True
+
+        return self._execute(request, response_handler)
+
     #########################
     # Collection Management #
     #########################

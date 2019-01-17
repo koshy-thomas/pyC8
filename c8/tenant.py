@@ -152,7 +152,7 @@ class Tenant(APIWrapper):
         """
         return name in self.tenants()
 
-    def create_tenant(self, name, passwd='', extra={}):
+    def create_tenant(self, name, passwd='', extra={}, dclist=None):
         """Create a new tenant.
         :param name: Tenant name.
         :type name: str | unicode
@@ -177,6 +177,15 @@ class Tenant(APIWrapper):
         data = {'name': name}
         data['passwd'] = passwd
         data['extra'] = extra
+
+        dcl = ''
+        if dclist:
+            # Process dclist param (type list) to build up comma-separated string of DCs
+            for dc in dclist:
+                if len(dcl) > 0:
+                    dcl += ','
+                dcl += dc
+        data['dcList'] = dcl
 
         request = Request(
             method='post',
@@ -256,6 +265,71 @@ class Tenant(APIWrapper):
 
         return self._execute(request, response_handler)
 
+
+    def add_datacenters(self, name,dc_list):
+        data = {}
+        dcl = ''
+        if dc_list:
+            # Process dclist param (type list) to build up comma-separated string of DCs
+            for dc in dc_list:
+                if len(dcl) > 0:
+                    dcl += ','
+                dcl += dc
+
+        data['dcList'] = dcl
+
+        request = Request(
+            method='post',
+            endpoint='/tenant/{}/datacenter'.format(name),
+            data=data
+        )
+
+        def response_handler(resp):
+            if not resp.is_success:
+                raise TenantDcAddError(resp, request)
+            return True
+
+        return self._execute(request, response_handler)
+
+    def get_tenant_dcinfo(self, tenant):
+        """List Edge Location (AKA Datacenter) details for specified tenant
+
+                        :return: DC List.
+                        :rtype: [str | unicode ]
+                        :raise c8.exceptions.TenantListError: If retrieval fails.
+                        """
+        request = Request(
+            method='get',
+            endpoint='/datacenter/_tenant/{}'.format(tenant)
+        )
+
+        def response_handler(resp):
+            if not resp.is_success:
+                raise TenantDcListError(resp, request)
+
+            return resp.body
+
+        return self._execute(request, response_handler)
+
+    def get_dcinfo(self, datacenter):
+        """List details of specified Edge Location
+
+                :return: DC List.
+                :rtype: [str | unicode ]
+                :raise c8.exceptions.TenantListError: If retrieval fails.
+                """
+        request = Request(
+            method='get',
+            endpoint='/datacenter/{}'.format(datacenter)
+        )
+
+        def response_handler(resp):
+            if not resp.is_success:
+                raise TenantDcListError(resp, request)
+
+            return resp.body
+
+        return self._execute(request, response_handler)
 
     def dclist(self):
         """Return the list of Datacenters

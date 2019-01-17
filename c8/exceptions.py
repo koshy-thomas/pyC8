@@ -146,6 +146,8 @@ class TenantListError(C8ServerError):
 class TenantDcListError(C8ServerError):
     """Failed to retrieve list of C8 Data Centers."""
 
+class TenantDcAddError(C8ServerError):
+    """Failed to add new Data Centers to Tenant"""
 
 class TenantPropertiesError(C8ServerError):
     """Failed to retrieve tenant properties."""
@@ -330,6 +332,8 @@ class CursorCloseError(C8ServerError):
 # Fabric Exceptions #
 #######################
 
+class FabricDcAddError(C8ServerError):
+    """Failed to add datacenters to the fabric"""
 
 class FabricListError(C8ServerError):
     """Failed to retrieve fabrics."""
