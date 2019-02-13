@@ -175,7 +175,6 @@ class Fabric(APIWrapper):
             if not resp.is_success:
                 raise FabricPropertiesError(resp, request)
             result = resp.body['result']
-            result['system'] = result.pop('isSystem')
             return result
 
         return self._execute(request, response_handler)
@@ -301,7 +300,6 @@ class Fabric(APIWrapper):
             return [{
                         'id': col['id'],
                         'name': col['name'],
-                        'system': col['isSystem'],
                         'path': col['path'],
                         'options': col['options']
                     } for col in map(dict, resp.body['result'])]
@@ -462,7 +460,7 @@ class Fabric(APIWrapper):
                                    the spot properties. If you specify SPOT_REGION,pass the corresponding spot region in
                                    the spot_dc parameter.
         :type name: Enum containing spot region creation types
-        :param name: Spot Region name, if spot_creation_type is set to SPOT_REGION
+        :param name: spot_dc: if spot_creation_type is set to SPOT_REGION
         :type name: str
         :param users: List of users with access to the new fabric, where each
             user is a dictionary with fields "username", "password", "active"
@@ -593,7 +591,6 @@ class Fabric(APIWrapper):
             return [{
                         'id': col['id'],
                         'name': col['name'],
-                        'system': col['isSystem'],
                         'type': StandardCollection.types[col['type']],
                         'status': StandardCollection.statuses[col['status']],
                     } for col in map(dict, resp.body['result'])]
@@ -604,7 +601,6 @@ class Fabric(APIWrapper):
                           name,
                           sync=False,
                           compact=True,
-                          system=False,
                           journal_size=None,
                           edge=False,
                           volatile=False,
@@ -631,9 +627,6 @@ class Fabric(APIWrapper):
         :param compact: If set to True, the collection is compacted. Applies
             only to MMFiles storage engine.
         :type compact: bool
-        :param system: If set to True, a system collection is created. The
-            collection name must have leading underscore "_" character.
-        :type system: bool
         :param journal_size: Max size of the journal in bytes.
         :type journal_size: int
         :param edge: If set to True, an edge collection is created.
@@ -704,7 +697,6 @@ class Fabric(APIWrapper):
             'name': name,
             'waitForSync': sync,
             'doCompact': compact,
-            'isSystem': system,
             'isVolatile': volatile,
             'keyOptions': key_options,
             'type': 3 if edge else 2,
@@ -743,23 +735,19 @@ class Fabric(APIWrapper):
 
         return self._execute(request, response_handler)
 
-    def delete_collection(self, name, ignore_missing=False, system=None):
+    def delete_collection(self, name, ignore_missing=False):
         """Delete the collection.
 
         :param name: Collection name.
         :type name: str | unicode
         :param ignore_missing: Do not raise an exception on missing collection.
         :type ignore_missing: bool
-        :param system: Whether the collection is a system collection.
-        :type system: bool
         :return: True if collection was deleted successfully, False if
             collection was not found and **ignore_missing** was set to True.
         :rtype: bool
         :raise c8.exceptions.CollectionDeleteError: If delete fails.
         """
         params = {}
-        if system is not None:
-            params['isSystem'] = system
 
         request = Request(
             method='delete',

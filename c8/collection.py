@@ -98,8 +98,6 @@ class Collection(APIWrapper):
 
         if 'name' not in body:
             body['name'] = self.name
-        if 'isSystem' in body:
-            body['system'] = body.pop('isSystem')
         if 'type' in body:
             body['edge'] = body.pop('type') == 3
         if 'waitForSync' in body:
