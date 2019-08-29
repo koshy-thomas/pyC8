@@ -274,7 +274,7 @@ class Tenant(APIWrapper):
 
         return self._execute(request, response_handler)
 
-    def localdc(self, detail=True):
+    def localdc(self, detail=False):
         """Return the list of local Datacenters
 
         :param detail: detail list of DCs if set to true else only DC names

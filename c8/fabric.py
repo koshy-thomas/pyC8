@@ -381,7 +381,7 @@ class Fabric(APIWrapper):
 
         return self._execute(request, response_handler)
 
-    def localdc(self, detail=True):
+    def localdc(self, detail=False):
         """Return the list of local Datacenters
 
         :param detail: detail list of DCs if set to true else only DC names
@@ -587,6 +587,7 @@ class Fabric(APIWrapper):
                 'name': col['name'],
                 'system': col['isSystem'],
                 'isSpot': col["isSpot"],
+                'isTimeSeies': col["isTimeSeies"],
                 'type': StandardCollection.types[col['type']],
                 'status': StandardCollection.statuses[col['status']],
             } for col in map(dict, resp.body['result'])]
@@ -606,7 +607,8 @@ class Fabric(APIWrapper):
                           sync_replication=None,
                           enforce_replication_factor=None,
                           spot_collection=False,
-                          is_system=False
+                          is_system=False,
+                          is_timeseries=False
                           ):
         """Create a new collection.
 
@@ -652,6 +654,8 @@ class Fabric(APIWrapper):
         :type bool
         :param is_system: If True, able to create system collections
         :type is_system: bool
+        :param is_timeseries: If True, able to create timeseries collections
+        :type is_timeseries: bool
         :return: Standard collection API wrapper.
         :rtype: c8.collection.StandardCollection
         :raise c8.exceptions.CollectionCreateError: If create fails.
@@ -668,7 +672,8 @@ class Fabric(APIWrapper):
             'keyOptions': key_options,
             'type': 3 if edge else 2,
             'isSpot': spot_collection,
-            'isSystem': is_system
+            'isSystem': is_system,
+            'isTimeSeies': is_timeseries
         }
         if shard_fields is not None:
             data['shardKeys'] = shard_fields

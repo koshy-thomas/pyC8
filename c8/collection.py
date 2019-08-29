@@ -87,65 +87,6 @@ class Collection(APIWrapper):
         """
         return None if code is None else self.statuses[code]
 
-    def _format_properties(self, body):  # pragma: no cover
-        """Format the collection properties.
-
-        :param body: Response body.
-        :type body: dict
-        :return: Formatted body.
-        :rtype: dict
-        """
-        body.pop('code', None)
-        body.pop('error', None)
-
-        if 'name' not in body:
-            body['name'] = self.name
-        if 'isSystem' in body:
-            body['system'] = body.pop('isSystem')
-        if 'type' in body:
-            body['edge'] = body.pop('type') == 3
-        if 'waitForSync' in body:
-            body['sync'] = body.pop('waitForSync')
-        if 'statusString' in body:
-            body['status'] = body.pop('statusString')
-        elif 'status' in body:
-            body['status'] = self._get_status_text(body['status'])
-        if 'globallyUniqueId' in body:
-            body['global_id'] = body.pop('globallyUniqueId')
-        if 'objectId' in body:
-            body['id'] = body.pop('objectId')
-        if 'cacheEnabled' in body:
-            body['cache'] = body.pop('cacheEnabled')
-        if 'doCompact' in body:
-            body['compact'] = body.pop('doCompact')
-        if 'isVolatile' in body:
-            body['volatile'] = body.pop('isVolatile')
-        if 'shardKeys' in body:
-            body['shard_fields'] = body.pop('shardKeys')
-        if 'replicationFactor' in body:
-            body['replication_factor'] = body.pop('replicationFactor')
-        if 'isSmart' in body:
-            body['smart'] = body.pop('isSmart')
-        if 'indexBuckets' in body:
-            body['index_bucket_count'] = body.pop('indexBuckets')
-        if 'journalSize' in body:
-            body['journal_size'] = body.pop('journalSize')
-        if 'numberOfShards' in body:
-            body['shard_count'] = body.pop('numberOfShards')
-
-        key_options = body.pop('keyOptions', {})
-        if 'type' in key_options:
-            body['key_generator'] = key_options['type']
-        if 'increment' in key_options:
-            body['key_increment'] = key_options['increment']
-        if 'offset' in key_options:
-            body['key_offset'] = key_options['offset']
-        if 'allowUserKeys' in key_options:
-            body['user_keys'] = key_options['allowUserKeys']
-        if 'lastValue' in key_options:
-            body['key_last_value'] = key_options['lastValue']
-        return body
-
     def _validate_id(self, doc_id):
         """Check the collection name in the document ID.
 
